@@ -12,6 +12,7 @@ export const buildReplicatePrompt = (openAiRefinedPrompt: string): object => {
     prompt: openAiRefinedPrompt,
     model_version: "stereo-large",
     output_format: "mp3",
-    normalization_strategy: "peak"
+    normalization_strategy: "peak",
+    duration: 10
   };
 };

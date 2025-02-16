@@ -1,7 +1,10 @@
 import OpenAI from 'openai';
+import getConfig from 'next/config';
+
+const { serverRuntimeConfig } = getConfig();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: serverRuntimeConfig.OPENAI_API_KEY,
 });
 
 export const refinePrompt = async (basePrompt: string): Promise<string> => {

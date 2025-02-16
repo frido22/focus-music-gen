@@ -17,12 +17,19 @@ export default function MusicGenerator() {
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify(preferences),
       });
 
-      const data: GenerationResponse = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate music');
+      }
 
+      const data: GenerationResponse = await response.json();
       if (!data.success || !data.audioUrl) {
         throw new Error(data.error || 'Failed to generate music');
       }
@@ -30,6 +37,7 @@ export default function MusicGenerator() {
       setAudioUrl(data.audioUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Generation error:', err);
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
+import { useEffect, useRef, useState } from 'react';
+import { PlayIcon, PauseIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -10,54 +10,79 @@ interface AudioPlayerProps {
 export default function AudioPlayer({ audioUrl }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isLooping, setIsLooping] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateProgress = () => {
-      setProgress((audio.currentTime / audio.duration) * 100);
-    };
-
-    audio.addEventListener('timeupdate', updateProgress);
-    return () => audio.removeEventListener('timeupdate', updateProgress);
-  }, []);
-
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
+    if (audioRef.current) {
+      audioRef.current.load();
+      audioRef.current.loop = isLooping;
+      setIsPlaying(false);
+      setError(null);
     }
-    setIsPlaying(!isPlaying);
+  }, [audioUrl, isLooping]);
+
+  const handlePlay = () => {
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(err => {
+          console.error('Audio playback error:', err);
+          setError('Failed to play audio. Please try again.');
+        });
+    }
+  };
+
+  const handlePause = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-4">
-      <audio ref={audioRef} src={audioUrl} loop />
+    <div className="flex flex-col items-center space-y-4">
+      <audio
+        ref={audioRef}
+        src={audioUrl}
+        loop={isLooping}
+        onEnded={() => !isLooping && setIsPlaying(false)}
+        onError={(e) => {
+          console.error('Audio error:', e);
+          setError('Failed to load audio. Please try again.');
+        }}
+      />
       
-      <div className="flex items-center justify-center mb-4">
-        <button
-          onClick={togglePlay}
-          className="p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700"
-        >
-          {isPlaying ? (
-            <PauseIcon className="h-8 w-8" />
-          ) : (
-            <PlayIcon className="h-8 w-8" />
-          )}
-        </button>
-      </div>
-
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
-        <div
-          className="bg-indigo-600 h-2.5 rounded-full transition-all"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      {error ? (
+        <div className="text-red-600">{error}</div>
+      ) : (
+        <div className="flex space-x-4 items-center">
+          <button
+            onClick={isPlaying ? handlePause : handlePlay}
+            className="p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700"
+          >
+            {isPlaying ? (
+              <PauseIcon className="h-8 w-8" />
+            ) : (
+              <PlayIcon className="h-8 w-8" />
+            )}
+          </button>
+          
+          <button
+            onClick={toggleLoop}
+            className={`p-2 rounded-full ${
+              isLooping ? 'bg-green-600' : 'bg-gray-400'
+            } text-white hover:opacity-80 transition-colors`}
+            title={isLooping ? 'Looping enabled' : 'Looping disabled'}
+          >
+            <ArrowPathIcon className="h-6 w-6" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
