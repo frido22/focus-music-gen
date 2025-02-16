@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PlayIcon, PauseIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -10,17 +10,16 @@ interface AudioPlayerProps {
 export default function AudioPlayer({ audioUrl }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLooping, setIsLooping] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.load();
-      audioRef.current.loop = isLooping;
+      audioRef.current.loop = true; // Always loop by default
       setIsPlaying(false);
       setError(null);
     }
-  }, [audioUrl, isLooping]);
+  }, [audioUrl]);
 
   const handlePlay = () => {
     if (audioRef.current) {
@@ -40,17 +39,13 @@ export default function AudioPlayer({ audioUrl }: AudioPlayerProps) {
     }
   };
 
-  const toggleLoop = () => {
-    setIsLooping(!isLooping);
-  };
-
   return (
     <div className="flex flex-col items-center space-y-4">
       <audio
         ref={audioRef}
         src={audioUrl}
-        loop={isLooping}
-        onEnded={() => !isLooping && setIsPlaying(false)}
+        loop={true}
+        onEnded={() => setIsPlaying(false)}
         onError={(e) => {
           console.error('Audio error:', e);
           setError('Failed to load audio. Please try again.');
@@ -60,7 +55,7 @@ export default function AudioPlayer({ audioUrl }: AudioPlayerProps) {
       {error ? (
         <div className="text-red-600">{error}</div>
       ) : (
-        <div className="flex space-x-4 items-center">
+        <div className="flex items-center justify-center">
           <button
             onClick={isPlaying ? handlePause : handlePlay}
             className="p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700"
@@ -70,16 +65,6 @@ export default function AudioPlayer({ audioUrl }: AudioPlayerProps) {
             ) : (
               <PlayIcon className="h-8 w-8" />
             )}
-          </button>
-          
-          <button
-            onClick={toggleLoop}
-            className={`p-2 rounded-full ${
-              isLooping ? 'bg-green-600' : 'bg-gray-400'
-            } text-white hover:opacity-80 transition-colors`}
-            title={isLooping ? 'Looping enabled' : 'Looping disabled'}
-          >
-            <ArrowPathIcon className="h-6 w-6" />
           </button>
         </div>
       )}

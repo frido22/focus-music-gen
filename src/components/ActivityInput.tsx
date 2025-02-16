@@ -8,95 +8,111 @@ interface ActivityInputProps {
   isLoading: boolean;
 }
 
+function LoadingDots() {
+  return (
+    <div className="flex space-x-1 items-center justify-center">
+      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+    </div>
+  );
+}
+
 export default function ActivityInput({ onSubmit, isLoading }: ActivityInputProps) {
-  const [preferences, setPreferences] = useState<MusicPreferences>({
-    activity: '',
-    mood: 'focused',
-    tempo: 'moderate',
-    genre: 'ambient',
-  });
+  const [activity, setActivity] = useState('');
+  const [mood, setMood] = useState('focused');
+  const [tempo, setTempo] = useState('moderate');
+  const [genre, setGenre] = useState('ambient');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(preferences);
+    onSubmit({ activity, mood, tempo, genre });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
-      <div>
-        <label htmlFor="activity" className="block text-sm font-medium text-gray-700">
-          What are you working on?
-        </label>
-        <input
-          type="text"
-          id="activity"
-          value={preferences.activity}
-          onChange={(e) => setPreferences({ ...preferences, activity: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="e.g., coding a website"
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
+    <div className="card space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="mood" className="block text-sm font-medium text-gray-700">
-            Mood
+          <label htmlFor="activity" className="block text-sm font-medium text-[var(--primary)] mb-2">
+            What are you doing?
           </label>
-          <select
-            id="mood"
-            value={preferences.mood}
-            onChange={(e) => setPreferences({ ...preferences, mood: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value="focused">Focused</option>
-            <option value="calm">Calm</option>
-            <option value="energetic">Energetic</option>
-            <option value="relaxed">Relaxed</option>
-          </select>
+          <input
+            type="text"
+            id="activity"
+            className="input-field"
+            placeholder="e.g., coding, studying, reading..."
+            value={activity}
+            onChange={(e) => setActivity(e.target.value)}
+            disabled={isLoading}
+            required
+          />
         </div>
 
-        <div>
-          <label htmlFor="tempo" className="block text-sm font-medium text-gray-700">
-            Tempo
-          </label>
-          <select
-            id="tempo"
-            value={preferences.tempo}
-            onChange={(e) => setPreferences({ ...preferences, tempo: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value="slow">Slow</option>
-            <option value="moderate">Moderate</option>
-            <option value="fast">Fast</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="mood" className="block text-sm font-medium text-[var(--primary)] mb-2">
+              Mood
+            </label>
+            <select
+              id="mood"
+              className="input-field"
+              value={mood}
+              onChange={(e) => setMood(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="focused">Focused</option>
+              <option value="calm">Calm</option>
+              <option value="energetic">Energetic</option>
+              <option value="relaxed">Relaxed</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="tempo" className="block text-sm font-medium text-[var(--primary)] mb-2">
+              Tempo
+            </label>
+            <select
+              id="tempo"
+              className="input-field"
+              value={tempo}
+              onChange={(e) => setTempo(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="slow">Slow</option>
+              <option value="moderate">Moderate</option>
+              <option value="fast">Fast</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="genre" className="block text-sm font-medium text-[var(--primary)] mb-2">
+              Genre
+            </label>
+            <select
+              id="genre"
+              className="input-field"
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="ambient">Ambient</option>
+              <option value="classical">Classical</option>
+              <option value="electronic">Electronic</option>
+              <option value="lofi">Lo-Fi</option>
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="genre" className="block text-sm font-medium text-gray-700">
-            Genre
-          </label>
-          <select
-            id="genre"
-            value={preferences.genre}
-            onChange={(e) => setPreferences({ ...preferences, genre: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        <div className="flex justify-center pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`btn btn-primary w-full md:w-auto ${isLoading ? 'opacity-80' : ''}`}
           >
-            <option value="ambient">Ambient</option>
-            <option value="electronic">Electronic</option>
-            <option value="classical">Classical</option>
-            <option value="lofi">Lo-Fi</option>
-          </select>
+            {isLoading ? <LoadingDots /> : 'Generate Music'}
+          </button>
         </div>
-      </div>
-
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-      >
-        {isLoading ? 'Generating...' : 'Generate Music'}
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }

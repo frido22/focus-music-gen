@@ -12,7 +12,7 @@ export default function Home() {
             </h1>
             <p className="text-lg text-gray-600">
               Generate personalized music to enhance your productivity and focus.
-              Simply describe what you're working on, and we'll create the perfect soundtrack.
+              Simply describe what you&#39;re working on, and we&#39;ll create the perfect soundtrack.
             </p>
           </div>
 
