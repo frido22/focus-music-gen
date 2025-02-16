@@ -6,9 +6,20 @@ import ActivityInput from './ActivityInput';
 import AudioPlayer from './AudioPlayer';
 import Layout from './Layout';
 
-const TIMEOUT_DURATION = 65000; // 65 seconds (slightly longer than server timeout)
+const POLLING_INTERVAL = 2000; // 2 seconds
+const MAX_POLLING_ATTEMPTS = 60; // 2 minutes total
 
-function LoadingSkeleton() {
+type GenerationStatus = 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+
+function LoadingSkeleton({ status }: { status: GenerationStatus }) {
+  const messages = {
+    starting: 'Starting music generation...',
+    processing: 'Creating your unique music piece...',
+    succeeded: 'Almost ready...',
+    failed: 'Generation failed',
+    canceled: 'Generation canceled'
+  };
+
   return (
     <div className="card animate-pulse">
       <div className="flex flex-col items-center space-y-4">
@@ -16,6 +27,7 @@ function LoadingSkeleton() {
           <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
         </div>
         <div className="h-2 bg-gray-200 rounded-full w-48"></div>
+        <p className="text-sm text-gray-500">{messages[status]}</p>
         <div className="flex space-x-3">
           <div className="h-2 bg-gray-200 rounded-full w-3"></div>
           <div className="h-2 bg-gray-200 rounded-full w-3"></div>
@@ -28,53 +40,86 @@ function LoadingSkeleton() {
 
 export default function MusicGenerator() {
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<GenerationStatus>('starting');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const pollStatus = async (predictionId: string) => {
+    let attempts = 0;
+    
+    const poll = async () => {
+      if (attempts >= MAX_POLLING_ATTEMPTS) {
+        setError('Generation timed out. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/generate/status?id=${predictionId}`);
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        if (data.status === 'succeeded' && data.output) {
+          setAudioUrl(data.output);
+          setStatus('succeeded');
+          setIsLoading(false);
+          return;
+        }
+
+        if (data.status === 'failed' || data.error) {
+          setStatus('failed');
+          throw new Error(data.error || 'Generation failed');
+        }
+
+        if (data.status === 'canceled') {
+          setStatus('canceled');
+          throw new Error('Generation was canceled');
+        }
+
+        // Still processing, continue polling
+        setStatus('processing');
+        attempts++;
+        setTimeout(poll, POLLING_INTERVAL);
+
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        setIsLoading(false);
+      }
+    };
+
+    await poll();
+  };
 
   const handleGenerate = async (preferences: MusicPreferences) => {
     setIsLoading(true);
     setError(null);
     setAudioUrl(null);
+    setStatus('starting');
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
-
-      const response = await fetch('/api/generate', {
+      // Start generation
+      const response = await fetch('/api/generate/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: JSON.stringify(preferences),
-        signal: controller.signal
       });
 
-      clearTimeout(timeoutId);
+      const data = await response.json();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate music');
+      if (!data.success || !data.predictionId) {
+        throw new Error(data.error || 'Failed to start generation');
       }
 
-      const data: GenerationResponse = await response.json();
-      if (!data.success || !data.audioUrl) {
-        throw new Error(data.error || 'Failed to generate music');
-      }
+      // Start polling for status
+      await pollStatus(data.predictionId);
 
-      setAudioUrl(data.audioUrl);
     } catch (err) {
-      if (err instanceof Error) {
-        if (err.name === 'AbortError') {
-          setError('Music generation is taking longer than expected. Please try again.');
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError('An error occurred');
-      }
-      console.error('Generation error:', err);
-    } finally {
+      setError(err instanceof Error ? err.message : 'An error occurred');
       setIsLoading(false);
     }
   };
@@ -90,7 +135,7 @@ export default function MusicGenerator() {
           </div>
         )}
 
-        {isLoading && <LoadingSkeleton />}
+        {isLoading && <LoadingSkeleton status={status} />}
 
         {audioUrl && !error && !isLoading && (
           <div className="card fade-in">

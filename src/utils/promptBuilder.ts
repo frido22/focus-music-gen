@@ -27,7 +27,7 @@ export const buildBasePrompt = (preferences: MusicPreferences): string => {
 export const buildReplicatePrompt = (openAiRefinedPrompt: string): object => {
   return {
     prompt: openAiRefinedPrompt,
-    model_version: "stereo-large",
+    model_version: "stereo-melody-large",
     output_format: "mp3",
     normalization_strategy: "peak",
     duration: 10,
