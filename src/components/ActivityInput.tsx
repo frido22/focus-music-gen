@@ -20,9 +20,9 @@ function LoadingDots() {
 
 export default function ActivityInput({ onSubmit, isLoading }: ActivityInputProps) {
   const [activity, setActivity] = useState('');
-  const [mood, setMood] = useState('focused');
-  const [tempo, setTempo] = useState('moderate');
-  const [genre, setGenre] = useState('ambient');
+  const [mood, setMood] = useState<MusicPreferences['mood']>('focused');
+  const [tempo, setTempo] = useState<MusicPreferences['tempo']>('moderate');
+  const [genre, setGenre] = useState<MusicPreferences['genre']>('ambient');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +57,7 @@ export default function ActivityInput({ onSubmit, isLoading }: ActivityInputProp
               id="mood"
               className="input-field"
               value={mood}
-              onChange={(e) => setMood(e.target.value)}
+              onChange={(e) => setMood(e.target.value as MusicPreferences['mood'])}
               disabled={isLoading}
             >
               <option value="focused">Focused</option>
@@ -75,7 +75,7 @@ export default function ActivityInput({ onSubmit, isLoading }: ActivityInputProp
               id="tempo"
               className="input-field"
               value={tempo}
-              onChange={(e) => setTempo(e.target.value)}
+              onChange={(e) => setTempo(e.target.value as MusicPreferences['tempo'])}
               disabled={isLoading}
             >
               <option value="slow">Slow</option>
@@ -92,13 +92,13 @@ export default function ActivityInput({ onSubmit, isLoading }: ActivityInputProp
               id="genre"
               className="input-field"
               value={genre}
-              onChange={(e) => setGenre(e.target.value)}
+              onChange={(e) => setGenre(e.target.value as MusicPreferences['genre'])}
               disabled={isLoading}
             >
               <option value="ambient">Ambient</option>
               <option value="classical">Classical</option>
               <option value="electronic">Electronic</option>
-              <option value="lofi">Lo-Fi</option>
+              <option value="lo-fi">Lo-Fi</option>
             </select>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MusicPreferences, GenerationResponse } from '@/types';
+import { MusicPreferences } from '@/types';
 import ActivityInput from './ActivityInput';
 import AudioPlayer from './AudioPlayer';
 import Layout from './Layout';
