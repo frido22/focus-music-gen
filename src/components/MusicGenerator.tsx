@@ -43,6 +43,7 @@ export default function MusicGenerator() {
   const [status, setStatus] = useState<GenerationStatus>('starting');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [preferences, setPreferences] = useState<MusicPreferences | null>(null);
 
   const pollStatus = async (predictionId: string) => {
     let attempts = 0;
@@ -98,6 +99,7 @@ export default function MusicGenerator() {
     setError(null);
     setAudioUrl(null);
     setStatus('starting');
+    setPreferences(preferences);
 
     try {
       // Start generation
@@ -126,22 +128,35 @@ export default function MusicGenerator() {
 
   return (
     <Layout>
-      <div className="space-y-8">
-        <ActivityInput onSubmit={handleGenerate} isLoading={isLoading} />
-        
-        {error && (
-          <div className="card bg-red-50 border-red-100">
-            <p className="text-red-600 text-center">{error}</p>
+      <div className="min-h-screen p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-gray-800 mb-3">Focus Flow</h1>
+            <p className="text-lg text-gray-600">
+              Simply describe your activity, and we&apos;ll create the perfect music to enhance your focus
+            </p>
           </div>
-        )}
 
-        {isLoading && <LoadingSkeleton status={status} />}
-
-        {audioUrl && !error && !isLoading && (
-          <div className="card fade-in">
-            <AudioPlayer audioUrl={audioUrl} />
+          <div className="overflow-visible">
+            <ActivityInput onSubmit={handleGenerate} isLoading={isLoading} />
           </div>
-        )}
+
+          {error && (
+            <div className="card bg-red-50 border-red-100">
+              <p className="text-red-600 text-center">
+                We&apos;re sorry, but there was an error generating your music. Please try again.
+              </p>
+            </div>
+          )}
+
+          {isLoading && <LoadingSkeleton status={status} />}
+
+          {audioUrl && !error && !isLoading && (
+            <div className="card fade-in">
+              <AudioPlayer audioUrl={audioUrl} duration={preferences?.duration} />
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

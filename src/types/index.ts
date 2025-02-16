@@ -1,8 +1,9 @@
 export interface MusicPreferences {
   activity: string;
-  mood?: 'focused' | 'calm' | 'energetic' | 'relaxed';
-  tempo?: 'slow' | 'moderate' | 'fast';
-  genre?: 'ambient' | 'classical' | 'electronic' | 'lo-fi';
+  mood?: string;
+  tempo?: string;
+  genre?: string;
+  duration?: '30' | '60' | '90' | '120';
 }
 
 export interface StartGenerationResponse {

@@ -6,16 +6,6 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 row-start-2">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Focused Music Generator
-            </h1>
-            <p className="text-lg text-gray-600">
-              Generate personalized music to enhance your productivity and focus.
-              Simply describe what you&#39;re working on, and we&#39;ll create the perfect soundtrack.
-            </p>
-          </div>
-
           <MusicGenerator />
         </div>
       </main>

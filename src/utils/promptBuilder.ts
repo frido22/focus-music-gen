@@ -30,7 +30,7 @@ export const buildReplicatePrompt = (openAiRefinedPrompt: string): object => {
     model_version: "stereo-melody-large",
     output_format: "mp3",
     normalization_strategy: "peak",
-    duration: 10,
+    duration: 30,
     seamless: true
   };
 };
