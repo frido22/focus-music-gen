@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 const MOTIVATION_MESSAGES = [
   "Let's build an empire together! 🚀",
-  "Another day, another chance to focus! 💪",
+
   "Ready to crush your goals! Let's go! 🎯",
   "Focus mode: activated! 🎧",
   "Time to build something amazing! 🏗️",
